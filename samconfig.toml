@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "YarnlivingPurchasing"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1q52gionhjeg3"
+s3_prefix = "YarnlivingPurchasing"
+region = "eu-west-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "ContextId=\"628\" ClientId=\"ThetisClientId\" ClientSecret=\"ThetisClientSecret\" ApiKey=\"510ede5a-8d9d-4967-a698-60f21c9cba99\" DevOpsEmail=\"lmp@thetis-apps.com\""

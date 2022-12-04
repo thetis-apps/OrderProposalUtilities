@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  YarnlivingPurchasing
+
+  Sample SAM Template for YarnlivingPurchasing
+
+Parameters:  
+  ContextId:
+    Type: String
+    Description: Context that this application is handling events for.
+    MinLength: '1'
+  ClientId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: ThetisClientId
+  ClientSecret:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: ThetisClientSecret
+  ApiKey:
+    Type: String
+  DevOpsEmail:
+    Description: The email address to send mail to when messages in the dead letter queue.
+    Type: String
+    MinLength: 4
+  
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Runtime: nodejs12.x
+    MemorySize: 512
+    Timeout: 3
+
+Resources:
+
+  OrderProposalHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Function that runs when a relevant document is created within Thetis IMS
+      Handler: src/app.orderProposalHandler
+      Environment:
+        Variables:
+          ClientId:
+            Ref: ClientId
+          ClientSecret:
+            Ref: ClientSecret
+          ApiKey:
+            Ref: ApiKey
+          ContextId:
+            Ref: ContextId
+      Events:
+        Request:
+          Type: EventBridgeRule
+          Properties:
+            Pattern:
+              source:
+              - public.thetis-ims.com
+              detail-type:
+              - documentCreated
+              detail:
+                documentType:
+                - ORDER_PROPOSAL
+                contextId:
+                - Ref: ContextId
+      Timeout: 100
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn:
+          Fn::GetAtt:
+          - DeadLetterQueue
+          - Arn
+          
+
+  # Our standard monitoring setup      
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties: {}
+  Alarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Alarm when any message is moved to the dead letter queue.
+      AlarmActions:
+      - Ref: IncidentTopic
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      MetricName: ApproximateNumberOfMessagesVisible
+      Period: 60
+      Namespace: AWS/SQS
+      Threshold: '0'
+      Unit: Count
+      Dimensions:
+      - Name: QueueName
+        Value:
+          Fn::GetAtt:
+          - DeadLetterQueue
+          - QueueName
+      TreatMissingData: notBreaching
+      Statistic: Maximum
+  IncidentTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+      - Endpoint: 
+          Ref: DevOpsEmail        
+        Protocol: email
+      DisplayName: Incidents to be handled by Thetis Devops.
