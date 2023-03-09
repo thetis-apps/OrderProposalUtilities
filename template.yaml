@@ -2,21 +2,21 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
 
-  Application for automating purchasing procedures at Yarnliving
+  Application for automating purchasing procedures
 
 # Metadata to use for the publishing to the SAR
 Metadata:
   AWS::ServerlessRepo::Application:
-    Name: thetis-ims-yarnliving-purchasing
-    Description: Application for automating purchasing procedures at Yarnliving.
+    Name: thetis-ims-purchasing-utilities
+    Description: Utilities for purchasing
     Author: thetis-apps
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
     Labels: ['thetis-ims']
-    HomePageUrl: https://github.com/thetis-apps/YarnlivingPurchasing
-    SemanticVersion: 1.0.1
-    SourceCodeUrl: https://github.com/thetis-apps/YarnlivingPurchasing
+    HomePageUrl: https://github.com/thetis-apps/PurchasingUtilities
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/thetis-apps/PurchasingUtilities
 
 Parameters:  
   ContextId:
