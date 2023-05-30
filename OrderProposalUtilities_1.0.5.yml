@@ -12,11 +12,11 @@ Metadata:
     Author: thetis-apps
     SpdxLicenseId: Apache-2.0
     LicenseUrl: s3://aws-sam-cli-managed-default-samclisourcebucket-1q52gionhjeg3/4612b8d5aa75b9b9936c9b7b9e6c7e82
-    ReadmeUrl: s3://aws-sam-cli-managed-default-samclisourcebucket-1q52gionhjeg3/2e7ffbd561475c21c7f0783863a328bd
+    ReadmeUrl: s3://aws-sam-cli-managed-default-samclisourcebucket-1q52gionhjeg3/4c72c8945fcecad43175d7f620927fff
     Labels:
     - thetis-ims
     HomePageUrl: https://github.com/thetis-apps/OrderProposalUtilities
-    SemanticVersion: 1.0.0
+    SemanticVersion: 1.0.5
     SourceCodeUrl: https://github.com/thetis-apps/OrderProposalUtilities
 Parameters:
   ContextId:
@@ -79,44 +79,12 @@ Resources:
           Fn::GetAtt:
           - DeadLetterQueue
           - Arn
-      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-1q52gionhjeg3/612613622e5dcfc9ab2101d4f12864ec
+      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-1q52gionhjeg3/7a05f83834d602b682a1ede56cf3745a
     Metadata:
       SamResourceId: OrderProposalHandler
   DeadLetterQueue:
     Type: AWS::SQS::Queue
-    Properties: {}
+    Properties:
+      KmsMasterKeyId: alias/aws/sqs
     Metadata:
       SamResourceId: DeadLetterQueue
-  Alarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: Alarm when any message is moved to the dead letter queue.
-      AlarmActions:
-      - Ref: IncidentTopic
-      ComparisonOperator: GreaterThanThreshold
-      EvaluationPeriods: 1
-      MetricName: ApproximateNumberOfMessagesVisible
-      Period: 60
-      Namespace: AWS/SQS
-      Threshold: '0'
-      Unit: Count
-      Dimensions:
-      - Name: QueueName
-        Value:
-          Fn::GetAtt:
-          - DeadLetterQueue
-          - QueueName
-      TreatMissingData: notBreaching
-      Statistic: Maximum
-    Metadata:
-      SamResourceId: Alarm
-  IncidentTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      Subscription:
-      - Endpoint:
-          Ref: DevOpsEmail
-        Protocol: email
-      DisplayName: Incidents to be handled by Thetis Devops.
-    Metadata:
-      SamResourceId: IncidentTopic
