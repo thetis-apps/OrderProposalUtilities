@@ -72,7 +72,7 @@ exports.orderProposalHandler = async (event, x) => {
     let dataDocument = JSON.parse(context.dataDocument);
     let setup = dataDocument.OrderProposalUtilities;
     
-    if (setup.createInboundShipment) {
+    if (setup.createPurchaseOrders) {
         
         response = await ims.get('documents/' + detail.documentId + '/globalTradeItemsToOrder');
         let lines = response.data;
@@ -80,9 +80,8 @@ exports.orderProposalHandler = async (event, x) => {
         let i = 1;
         let map = new Map();
         for (let line of lines) {
-            let supplierNumbers = line.supplierNumbers;
-            if (supplierNumbers != null) {
-                let supplierNumber = supplierNumbers.split(',')[0];
+            let supplierNumber = line.supplierNumber;
+            if (supplierNumber != null) {
                 let inboundShipment;
                 if (map.has(supplierNumber)) {
                     inboundShipment = map.get(supplierNumber);
@@ -94,8 +93,6 @@ exports.orderProposalHandler = async (event, x) => {
                     map.set(supplierNumber, inboundShipment);
                 }
     
-                console.log(map);
-                
                 let inboundShipmentLine = new Object();
                 inboundShipmentLine.inboundShipmentNumber = inboundShipment.inboundShipmentNumber;
                 inboundShipmentLine.stockKeepingUnit = line.stockKeepingUnit;

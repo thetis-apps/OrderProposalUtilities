@@ -13,15 +13,16 @@ In the data document of the context:
 ```
 {
   "OrderProposalUtilities": {
-    "createInboundShipment": true
+    "createPurchaseOrders": true
   }
 }
 ```
 # Options
 
-#### createInboundShipment
+#### createPurchaseOrders
 
-If this field is true, the application will automatically create one or more inbound shipments every time a new order proposal is created.
+If this field is true, the application will automatically create one or more purchase order every time a new order proposal is created.
 
-The application makes one inbound shipment for each future supplier represented in the order proposal. The latest supplier of an item is considered the future supplier. If an item has never before been purchased, it is not included in any inbound shipment.
+The application makes one purchase order for each supplier represented in the order proposal.
+
 
