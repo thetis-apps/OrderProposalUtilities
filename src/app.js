@@ -56,6 +56,74 @@ async function getIMS() {
 	return ims;
 }
 
+/**
+ * Send a response to CloudFormation regarding progress in creating resource.
+ */
+async function sendResponse(input, context, responseStatus, reason) {
+
+	let responseUrl = input.ResponseURL;
+
+	let output = new Object();
+	output.Status = responseStatus;
+	output.PhysicalResourceId = "StaticFiles";
+	output.StackId = input.StackId;
+	output.RequestId = input.RequestId;
+	output.LogicalResourceId = input.LogicalResourceId;
+	output.Reason = reason;
+	await axios.put(responseUrl, output);
+}
+
+
+var dataSchema = { type: 'object', title: 'Order proposal utilities', properties: {
+				"createPurchaseOrders": {"type": "boolean"}}};
+
+exports.initializer = async (input, context) => {
+	
+	try {
+		let ims = await getIMS();
+		let requestType = input.RequestType;
+		if (requestType == "Create") {
+			
+			// Create a data extension to the seller entity
+
+			let dataExtension = { entityName: 'context', dataExtensionName: 'OrderProposalUtilities', dataSchema: JSON.stringify(dataSchema) };
+			await ims.post('dataExtensions', dataExtension);
+			
+		} else if (requestType == 'Update') {
+			
+			// Update the data extension to the context entity
+			
+			let response = await ims.get('dataExtensions');
+			let dataExtensions = response.data;
+			let found = false;
+			let i = 0;
+			while (i < dataExtensions.length && !found) {
+				let dataExtension = dataExtensions[i];
+				if (dataExtension.entityName == 'context' && dataExtension.dataExtensionName == 'OrderProposalUtilities') {
+					found = true;
+				} else {
+					i++;
+				}
+			}
+			if (found) {
+				let dataExtension = dataExtensions[i];
+				await ims.patch('dataExtensions/' + dataExtension.id, { dataSchema: JSON.stringify(dataSchema) });
+			} else {
+				let dataExtension = { entityName: 'seller', dataExtensionName: 'OrderProposalUtilities', dataSchema: JSON.stringify(dataSchema) };
+				await ims.post('dataExtensions', dataExtension);
+			}
+			
+		}
+		
+		await sendResponse(input, context, "SUCCESS", "OK");
+
+	} catch (error) {
+		await sendResponse(input, context, "SUCCESS", JSON.stringify(error));
+	}
+
+};
+
+
 exports.orderProposalHandler = async (event, x) => {
     
     console.log(JSON.stringify(event));
@@ -96,7 +164,7 @@ exports.orderProposalHandler = async (event, x) => {
                 let inboundShipmentLine = new Object();
                 inboundShipmentLine.inboundShipmentNumber = inboundShipment.inboundShipmentNumber;
                 inboundShipmentLine.stockKeepingUnit = line.stockKeepingUnit;
-                inboundShipmentLine.numItemsExpected = line.numItemsToOrder;
+                inboundShipmentLine.numItemsExpected = line.reorderLevel != null ? line.reorderLevel - line.numItemsSaleable : line.numItemsToOrder;
                 inboundShipment.inboundShipmentLines.push(inboundShipmentLine);
                 
             }
