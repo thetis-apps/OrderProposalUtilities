@@ -164,7 +164,7 @@ exports.orderProposalHandler = async (event, x) => {
                 let inboundShipmentLine = new Object();
                 inboundShipmentLine.inboundShipmentNumber = inboundShipment.inboundShipmentNumber;
                 inboundShipmentLine.stockKeepingUnit = line.stockKeepingUnit;
-                inboundShipmentLine.numItemsExpected = line.reorderLevel != null ? line.reorderLevel - line.numItemsSaleable : line.numItemsToOrder;
+                inboundShipmentLine.numItemsExpected = line.orderUpToLevel != null ? line.orderUpToLevel - line.numItemsSaleable : line.numItemsToOrder;
                 inboundShipment.inboundShipmentLines.push(inboundShipmentLine);
                 
             }
