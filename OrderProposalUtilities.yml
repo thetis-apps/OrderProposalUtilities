@@ -16,7 +16,7 @@ Metadata:
     Labels:
     - thetis-ims
     HomePageUrl: https://github.com/thetis-apps/OrderProposalUtilities
-    SemanticVersion: 1.2.1
+    SemanticVersion: 1.2.3
     SourceCodeUrl: https://github.com/thetis-apps/OrderProposalUtilities
 Parameters:
   ContextId:
@@ -38,7 +38,7 @@ Parameters:
     MinLength: 4
 Globals:
   Function:
-    Runtime: nodejs16.x
+    Runtime: nodejs24.x
     MemorySize: 512
     Timeout: 3
 Resources:
@@ -79,7 +79,7 @@ Resources:
           Fn::GetAtt:
           - DeadLetterQueue
           - Arn
-      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-1q52gionhjeg3/65ffffe34e9b6c06ad6e843376de972b
+      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-1q52gionhjeg3/75f7ab298373c6347859e4c680b6f407
     Metadata:
       SamResourceId: OrderProposalHandler
   InitResource:
@@ -107,7 +107,7 @@ Resources:
             Ref: ClientSecret
           ApiKey:
             Ref: ApiKey
-      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-1q52gionhjeg3/65ffffe34e9b6c06ad6e843376de972b
+      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-1q52gionhjeg3/75f7ab298373c6347859e4c680b6f407
     Metadata:
       SamResourceId: InitializeFunction
   DeadLetterQueue:
